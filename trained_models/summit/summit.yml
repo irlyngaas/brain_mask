@@ -1,0 +1,51 @@
+---
+data_dir: /gpfs/alpine/bif141/proj-shared/irl1/brain_mask/MRHData
+model_dir: same
+overwrite: True
+random_state: 42
+
+data_prefix: [ad, b0avg, dwi, fa, gfa, iso, md, nqa, qa, rd]
+label_prefix: [labels_binary]
+mask_prefix: [labels_binary]
+mask_dilate: [128, 140, 128]
+filter_zero: 0
+resample_spacing: []
+load_shape: []
+
+input_function: PatchInputFn3D
+data_plane: ax
+train_dims: [128, 140, 128]
+train_patch_overlap: [2, 2, 2]
+infer_dims: [256, 420, 256]
+infer_patch_overlap: [1, 1, 1]
+augment_train_data: True
+label_interp: 0
+
+norm_data: True
+norm_labels: False
+norm_mode: zscore
+
+model_name: Unet3dBneck
+base_filters: 32
+output_filters: 1
+layer_layout: [3, 4, 4]
+final_layer: sigmoid
+kernel_size: [3, 3, 3]
+data_format: channels_last
+activation: leaky_relu
+mixed_precision: False
+dist_strat: none
+
+shuffle_size: 1000
+batch_size: 1
+samples_per_epoch: 20000
+num_threads: 6
+train_fract: .85
+test_fract: 0.0
+learning_rate: [0.001, 12, 0.5]
+learning_rate_decay: simple_step
+optimizer: adam
+loss: combo_loss3d
+metrics: [bce]
+num_epochs: 20
+dropout_rate: 0.3

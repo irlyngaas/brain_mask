@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#BSUB -nnodes 1
+#BSUB -W 0:30
+#BSUB -P bif141
+#BSUB -alloc_flags "smt4 nvme"
+#BSUB -J unet
+#BSUB -o unet.%J
+#BSUB -q batch-hm
+
+set +x
+
+module load open-ce/1.5.0-py38-0
+conda deactivate
+conda activate /gpfs/alpine/bif141/proj-shared/irl1/opence
+module list
+
+export OMP_NUM_THREADS=1
+
+nodes=($(cat ${LSB_DJOB_HOSTFILE} | sort | uniq | grep -v login | grep -v batch))
+nnodes=${#nodes[@]}
+echo $nnodes
+
+
+jsrun -n $nnodes -r 1 -g 6 -a 1 -c 1 python train.py --param_file /gpfs/alpine/bif141/proj-shared/irl1/brain_mask/trained_models/summit/summit.yml

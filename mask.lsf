@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#BSUB -nnodes 1
+#BSUB -W 0:15
+#BSUB -P bif141
+#BSUB -alloc_flags "smt4 nvme"
+#BSUB -J mask
+#BSUB -o mask.%J
+#BSUB -q batch-hm
+
+set +x
+
+module load open-ce/1.5.0-py38-0
+conda deactivate
+conda activate /gpfs/alpine/bif141/proj-shared/irl1/opence
+module list
+
+export OMP_NUM_THREADS=1
+#export PYTHONPATH=$PYTHONPATH:/gpfs/alpine/med106/world-shared/irl1/rhel8/fork-megatron/megatron/fused_kernels
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/gpfs/alpine/med106/world-shared/irl1/rhel8/mytorch/lib/python3.8/site-packages/torch/lib
+#export PATH=$PATH:/gpfs/alpine/med106/world-shared/irl1/rhel8/mytorch/lib/python3.8/site-packages/torch/include
+
+nodes=($(cat ${LSB_DJOB_HOSTFILE} | sort | uniq | grep -v login | grep -v batch))
+nnodes=${#nodes[@]}
+echo $nnodes
+
+jsrun -n $nnodes -r 1 -g 1 -a 1 -c 1 python brain_mask.py -m summit -i /gpfs/alpine/bif141/proj-shared/irl1/brain_mask/MRHData/N57385 
